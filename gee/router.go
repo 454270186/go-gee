@@ -1,10 +1,6 @@
 package gee
 
-import (
-	"fmt"
-	"log"
-	"net/http"
-)
+import "log"
 
 // Router controls the router-map
 type Router struct {
@@ -19,19 +15,18 @@ func NewRouter() *Router {
 
 // addRouter inserts URL-path into router-map table
 func (router *Router) addRoute(method string, pattern string, handler HandlerFunc) {
+	log.Printf("Route %4s - %s", method, pattern)
 	URL := method + "-" + pattern
 	router.handlers[URL] = handler
 }
 
-func (router *Router) handle(w http.ResponseWriter, r *http.Request) {
-	key := r.Method + "-" + r.URL.Path
+func (router *Router) handle(c *Context) {
+	key := c.Method + "-" + c.Path
 
 	if handler, ok := router.handlers[key]; ok {
-		handler(w, r)
+		handler(c)
 	} else {
-		_, err := fmt.Fprintf(w, "404 NOT FOUND: %s\n", r.URL.Path)
-		if err != nil {
-			log.Println(err)
-		}
+		log.Printf("404 NOT FOUND: %s\n", c.Path)
+		c.String(404, "404 NOT FOUND: %s\n", c.Path)
 	}
 }

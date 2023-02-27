@@ -3,25 +3,24 @@ package main
 import (
 	"example/gee"
 	"fmt"
-	"log"
 	"net/http"
 )
 
 func main() {
 	server := gee.New()
 
-	server.GET("/", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("hello world"))
-		if err != nil {
-			log.Println(err)
-		}
+	server.GET("/", func(c *gee.Context) {
+		c.HTML(http.StatusOK, "<h1>Hello World</h1>")
+	})
+	server.GET("/hello", func(c *gee.Context) {
+		c.String(http.StatusOK, "hello %s\n", c.Query("name"))
 	})
 
-	server.GET("/home", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("home page"))
-		if err != nil {
-			log.Println(err)
-		}
+	server.POST("/login", func(c *gee.Context) {
+		c.JSON(http.StatusOK, gee.H{
+			"username": c.PostForm("username"),
+			"password": c.PostForm("password"),
+		})
 	})
 
 	fmt.Println("Start listening on port 8080...")

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type HandlerFunc func(w http.ResponseWriter, r *http.Request)
+type HandlerFunc func(c *Context)
 
 // Engine implement the interface of http.Handler
 type Engine struct {
@@ -35,5 +35,6 @@ func (engine *Engine) Run(addr string) {
 }
 
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	engine.router.handle(w, r)
+	context := NewContext(w, r)
+	engine.router.handle(context)
 }
